@@ -1,0 +1,78 @@
+INITIAL BUY BOOK
+
+ID: 1 | Price: 100 | Qty: 50 | Time: 2
+ID: 2 | Price: 101 | Qty: 20 | Time: 3
+ID: 3 | Price: 100 | Qty: 40 | Time: 1
+
+INITIAL SELL BOOK
+
+ID: 4 | Price: 98 | Qty: 10 | Time: 1
+ID: 5 | Price: 100 | Qty: 25 | Time: 2
+ID: 6 | Price: 102 | Qty: 30 | Time: 3
+
+================================
+PRICE-TIME PRIORITY ORDER BOOKS
+================================
+
+BUY BOOK
+
+ID: 2 | Price: 101 | Qty: 20 | Time: 3
+ID: 3 | Price: 100 | Qty: 40 | Time: 1
+ID: 1 | Price: 100 | Qty: 50 | Time: 2
+
+SELL BOOK
+
+ID: 4 | Price: 98 | Qty: 10 | Time: 1
+ID: 5 | Price: 100 | Qty: 25 | Time: 2
+ID: 6 | Price: 102 | Qty: 30 | Time: 3
+
+================================
+MARKET DATA
+================================
+Best Bid: 101
+Best Ask: 98
+Spread  : -3
+
+================================
+MATCHING ENGINE
+================================
+
+====================
+TRADE EXECUTED
+Buy Order ID : 2
+Sell Order ID: 4
+Trade Price  : 98
+Trade Qty    : 10
+
+====================
+TRADE EXECUTED
+Buy Order ID : 2
+Sell Order ID: 5
+Trade Price  : 100
+Trade Qty    : 10
+
+====================
+TRADE EXECUTED
+Buy Order ID : 3
+Sell Order ID: 5
+Trade Price  : 100
+Trade Qty    : 15
+
+================================
+FINAL BUY BOOK
+================================
+ID: 2 | Price: 101 | Qty: 0 | Time: 3
+ID: 3 | Price: 100 | Qty: 25 | Time: 1
+ID: 1 | Price: 100 | Qty: 50 | Time: 2
+
+================================
+FINAL SELL BOOK
+================================
+ID: 4 | Price: 98 | Qty: 0 | Time: 1
+ID: 5 | Price: 100 | Qty: 0 | Time: 2
+ID: 6 | Price: 102 | Qty: 30 | Time: 3
+
+================================
+STATISTICS
+================================
+Trades Executed: 3
