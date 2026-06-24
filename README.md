@@ -70,7 +70,7 @@ Remaining Sell Quantity = 0
 * Latency Benchmarking
 * Multi-Threaded Matching Engine
 
-  Complexity Analysis
+## Complexity Analysis
 
 Order Insertion:
 O(log n)
