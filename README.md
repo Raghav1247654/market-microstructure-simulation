@@ -69,3 +69,17 @@ Remaining Sell Quantity = 0
 * Real-Time Visualization
 * Latency Benchmarking
 * Multi-Threaded Matching Engine
+
+  Complexity Analysis
+
+Order Insertion:
+O(log n)
+
+Best Bid / Ask Retrieval:
+O(1)
+
+Trade Matching:
+O(log n) per heap operation
+
+The use of priority queues enables efficient retrieval of the highest-priority buy order and lowest-priority sell order.
+
