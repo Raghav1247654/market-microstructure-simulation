@@ -1,12 +1,22 @@
 #include <iostream>
+#include <queue>
 #include <vector>
-#include <algorithm>
+#include <random>
+#include <ctime>
 
 using namespace std;
 
-class Order
+/*
+    Represents a single order submitted to the exchange.
+
+    id         : Unique order identifier
+    isBuy      : true = Buy Order, false = Sell Order
+    price      : Limit price of the order
+    quantity   : Number of shares/contracts
+    timestamp  : Arrival time used for time priority
+*/
+struct Order
 {
-public:
     int id;
     bool isBuy;
     double price;
@@ -14,206 +24,262 @@ public:
     int timestamp;
 };
 
-void printOrder(Order order)
+/*
+    Buy-side comparator.
+
+    Priority Rules:
+    1. Higher price gets higher priority.
+    2. If prices are equal, earlier timestamp wins.
+
+    This implements price-time priority.
+*/
+struct BuyComparator
 {
-    cout << "ID: " << order.id
-         << " | Price: " << order.price
-         << " | Qty: " << order.quantity
-         << " | Time: " << order.timestamp
-         << endl;
-}
+    bool operator()(const Order &a, const Order &b) const
+    {
+        if (a.price != b.price)
+            return a.price < b.price;
 
-int tradesExecuted = 0;
+        return a.timestamp > b.timestamp;
+    }
+};
 
-void matchOrders(Order &buy, Order &sell)
+/*
+    Sell-side comparator.
+
+    Priority Rules:
+    1. Lower price gets higher priority.
+    2. If prices are equal, earlier timestamp wins.
+
+    This mirrors the behavior of a real exchange.
+*/
+struct SellComparator
 {
-    if (buy.quantity == 0 || sell.quantity == 0)
+    bool operator()(const Order &a, const Order &b) const
     {
-        return;
+        if (a.price != b.price)
+            return a.price > b.price;
+
+        return a.timestamp > b.timestamp;
     }
+};
 
-    if (buy.price >= sell.price)
-    {
-        int tradedQuantity =
-            min(buy.quantity, sell.quantity);
+/*
+    Matching Engine
 
-        cout << "\n====================\n";
-        cout << "TRADE EXECUTED\n";
-        cout << "Buy Order ID : " << buy.id << endl;
-        cout << "Sell Order ID: " << sell.id << endl;
-        cout << "Trade Price  : " << sell.price << endl;
-        cout << "Trade Qty    : " << tradedQuantity << endl;
-
-        buy.quantity -= tradedQuantity;
-        sell.quantity -= tradedQuantity;
-
-        tradesExecuted++;
-    }
-}
-
-int main()
+    Responsibilities:
+    - Maintain buy and sell order books
+    - Accept incoming orders
+    - Match compatible orders
+    - Track statistics
+*/
+class MatchingEngine
 {
-    vector<Order> buyBook;
-    vector<Order> sellBook;
+private:
 
-    // BUY ORDERS
+    // Buy orders stored in a max-priority queue
+    priority_queue<
+        Order,
+        vector<Order>,
+        BuyComparator> buyBook;
 
-    Order buy1;
-    buy1.id = 1;
-    buy1.isBuy = true;
-    buy1.price = 100;
-    buy1.quantity = 50;
-    buy1.timestamp = 2;
+    // Sell orders stored in a min-priority queue
+    priority_queue<
+        Order,
+        vector<Order>,
+        SellComparator> sellBook;
 
-    Order buy2;
-    buy2.id = 2;
-    buy2.isBuy = true;
-    buy2.price = 101;
-    buy2.quantity = 20;
-    buy2.timestamp = 3;
+    int tradesExecuted = 0;
+    int ordersProcessed = 0;
 
-    Order buy3;
-    buy3.id = 3;
-    buy3.isBuy = true;
-    buy3.price = 100;
-    buy3.quantity = 40;
-    buy3.timestamp = 1;
+public:
 
-    buyBook.push_back(buy1);
-    buyBook.push_back(buy2);
-    buyBook.push_back(buy3);
+    /*
+        Adds a new order to the exchange.
 
-    // SELL ORDERS
-
-    Order sell1;
-    sell1.id = 4;
-    sell1.isBuy = false;
-    sell1.price = 98;
-    sell1.quantity = 10;
-    sell1.timestamp = 1;
-
-    Order sell2;
-    sell2.id = 5;
-    sell2.isBuy = false;
-    sell2.price = 100;
-    sell2.quantity = 25;
-    sell2.timestamp = 2;
-
-    Order sell3;
-    sell3.id = 6;
-    sell3.isBuy = false;
-    sell3.price = 102;
-    sell3.quantity = 30;
-    sell3.timestamp = 3;
-
-    sellBook.push_back(sell1);
-    sellBook.push_back(sell2);
-    sellBook.push_back(sell3);
-
-    cout << "INITIAL BUY BOOK\n\n";
-
-    for (Order order : buyBook)
+        Orders are inserted into the appropriate
+        order book and matching is attempted immediately.
+    */
+    void addOrder(Order order)
     {
-        printOrder(order);
+        ordersProcessed++;
+
+        if (order.isBuy)
+            buyBook.push(order);
+        else
+            sellBook.push(order);
+
+        match();
     }
 
-    cout << "\nINITIAL SELL BOOK\n\n";
+    /*
+        Core matching algorithm.
 
-    for (Order order : sellBook)
+        While:
+        Best Bid >= Best Ask
+
+        execute trades.
+
+        Supports:
+        - Price-Time Priority
+        - Partial Fills
+    */
+    void match()
     {
-        printOrder(order);
-    }
-
-    // PRICE-TIME PRIORITY
-
-    sort(buyBook.begin(), buyBook.end(),
-         [](Order a, Order b)
-         {
-             if (a.price != b.price)
-             {
-                 return a.price > b.price;
-             }
-
-             return a.timestamp < b.timestamp;
-         });
-
-    sort(sellBook.begin(), sellBook.end(),
-         [](Order a, Order b)
-         {
-             if (a.price != b.price)
-             {
-                 return a.price < b.price;
-             }
-
-             return a.timestamp < b.timestamp;
-         });
-
-    cout << "\n================================\n";
-    cout << "PRICE-TIME PRIORITY ORDER BOOKS";
-    cout << "\n================================\n";
-
-    cout << "\nBUY BOOK\n\n";
-
-    for (Order order : buyBook)
-    {
-        printOrder(order);
-    }
-
-    cout << "\nSELL BOOK\n\n";
-
-    for (Order order : sellBook)
-    {
-        printOrder(order);
-    }
-
-    double bestBid = buyBook[0].price;
-    double bestAsk = sellBook[0].price;
-
-    cout << "\n================================\n";
-    cout << "MARKET DATA";
-    cout << "\n================================\n";
-
-    cout << "Best Bid: " << bestBid << endl;
-    cout << "Best Ask: " << bestAsk << endl;
-    cout << "Spread  : " << bestAsk - bestBid << endl;
-
-    cout << "\n================================\n";
-    cout << "MATCHING ENGINE";
-    cout << "\n================================\n";
-
-    for (Order &buy : buyBook)
-    {
-        for (Order &sell : sellBook)
+        while (!buyBook.empty() &&
+               !sellBook.empty() &&
+               buyBook.top().price >= sellBook.top().price)
         {
-            matchOrders(buy, sell);
+            Order buy = buyBook.top();
+            buyBook.pop();
+
+            Order sell = sellBook.top();
+            sellBook.pop();
+
+            int tradedQty =
+                min(buy.quantity, sell.quantity);
+
+            cout << "\n================================";
+            cout << "\nTRADE EXECUTED";
+            cout << "\n================================\n";
+
+            cout << "Buy Order ID : "
+                 << buy.id
+                 << endl;
+
+            cout << "Sell Order ID: "
+                 << sell.id
+                 << endl;
+
+            cout << "Trade Price  : "
+                 << sell.price
+                 << endl;
+
+            cout << "Trade Qty    : "
+                 << tradedQty
+                 << endl;
+
+            // Reduce remaining quantities
+            buy.quantity -= tradedQty;
+            sell.quantity -= tradedQty;
+
+            tradesExecuted++;
+
+            /*
+                If an order is only partially filled,
+                reinsert the remaining quantity back
+                into the order book.
+            */
+            if (buy.quantity > 0)
+                buyBook.push(buy);
+
+            if (sell.quantity > 0)
+                sellBook.push(sell);
         }
     }
 
-    cout << "\n================================\n";
-    cout << "FINAL BUY BOOK";
-    cout << "\n================================\n";
+    /*
+        Displays current market information.
 
-    for (Order order : buyBook)
+        Best Bid = Highest Buy Price
+        Best Ask = Lowest Sell Price
+        Spread   = Ask - Bid
+    */
+    void printMarketData()
     {
-        printOrder(order);
+        cout << "\n================================";
+        cout << "\nMARKET DATA";
+        cout << "\n================================\n";
+
+        if (!buyBook.empty())
+        {
+            cout << "Best Bid: "
+                 << buyBook.top().price
+                 << endl;
+        }
+
+        if (!sellBook.empty())
+        {
+            cout << "Best Ask: "
+                 << sellBook.top().price
+                 << endl;
+        }
+
+        if (!buyBook.empty() &&
+            !sellBook.empty())
+        {
+            cout << "Spread: "
+                 << sellBook.top().price -
+                        buyBook.top().price
+                 << endl;
+        }
     }
 
-    cout << "\n================================\n";
-    cout << "FINAL SELL BOOK";
-    cout << "\n================================\n";
-
-    for (Order order : sellBook)
+    /*
+        Displays simulation statistics.
+    */
+    void printStatistics()
     {
-        printOrder(order);
+        cout << "\n================================";
+        cout << "\nSTATISTICS";
+        cout << "\n================================\n";
+
+        cout << "Orders Processed: "
+             << ordersProcessed
+             << endl;
+
+        cout << "Trades Executed : "
+             << tradesExecuted
+             << endl;
+
+        cout << "Open Buy Orders : "
+             << buyBook.size()
+             << endl;
+
+        cout << "Open Sell Orders: "
+             << sellBook.size()
+             << endl;
+    }
+};
+
+int main()
+{
+    MatchingEngine engine;
+
+    /*
+        Random order generation.
+
+        This simulates multiple market participants
+        submitting orders to the exchange.
+    */
+    mt19937 rng(time(0));
+
+    uniform_int_distribution<int> sideDist(0, 1);
+    uniform_int_distribution<int> priceDist(95, 105);
+    uniform_int_distribution<int> qtyDist(10, 100);
+
+    int timestamp = 1;
+
+    /*
+        Generate 100 random orders.
+    */
+    const int NUM_ORDERS = 100;
+    
+    for (int i = 1; i <= NUM_ORDERS; i++)
+    {
+        Order order;
+
+        order.id = i;
+        order.isBuy = sideDist(rng);
+        order.price = priceDist(rng);
+        order.quantity = qtyDist(rng);
+        order.timestamp = timestamp++;
+
+        engine.addOrder(order);
     }
 
-    cout << "\n================================\n";
-    cout << "STATISTICS";
-    cout << "\n================================\n";
-
-    cout << "Trades Executed: "
-         << tradesExecuted
-         << endl;
+    engine.printMarketData();
+    engine.printStatistics();
 
     return 0;
 }
