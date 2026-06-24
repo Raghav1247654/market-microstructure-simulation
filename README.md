@@ -4,7 +4,9 @@
 
 This project implements a simplified electronic exchange in C++.
 
-The simulator maintains buy and sell order books, performs order matching based on price-time priority, executes trades, supports partial fills, and calculates basic market statistics such as bid-ask spread.
+The system maintains buy and sell order books using heap-based data structures (`priority_queue`) and performs trade execution using a price-time priority matching algorithm.
+
+The simulator processes randomly generated orders and tracks key market statistics including bid price, ask price, spread, and trade activity.
 
 ## Features
 
@@ -12,56 +14,58 @@ The simulator maintains buy and sell order books, performs order matching based 
 * Price-Time Priority Matching
 * Partial Order Fills
 * Bid-Ask Spread Calculation
-* Trade Execution Tracking
-* Order Book Sorting
+* Trade Execution Analytics
+* Random Order Simulation
+* Heap-Based Order Book Management
+
+## System Design
+
+Order Submission
+↓
+Matching Engine
+↓
+Buy Book / Sell Book
+↓
+Trade Execution
+↓
+Market Statistics
 
 ## Technologies Used
 
 * C++
+* STL Priority Queue
 * STL Vector
-* STL Algorithms
 * Object-Oriented Programming
+* Custom Comparators
 
 ## Matching Logic
 
-Orders are matched according to the following rules:
+The exchange follows price-time priority:
 
 1. Higher buy prices receive priority.
 2. Lower sell prices receive priority.
 3. If prices are equal, earlier timestamps receive priority.
 
-This follows the price-time priority mechanism used in many electronic exchanges.
+## Example Trade
 
-## Example
+Buy Order:
+Price = 100
+Quantity = 50
 
-BUY Order:
+Sell Order:
+Price = 99
+Quantity = 30
 
-Price: 100
+Trade Result:
+30 shares executed
 
-Quantity: 50
-
-SELL Order:
-
-Price: 99
-
-Quantity: 30
-
-Result:
-
-Trade Executed: 30 shares
-
-Remaining Buy Quantity: 20
-
-Remaining Sell Quantity: 0
+Remaining Buy Quantity = 20
+Remaining Sell Quantity = 0
 
 ## Future Improvements
 
-* Priority Queue Based Order Books
 * Market Orders
 * Order Cancellation
-* Performance Benchmarking
-* Real-Time Order Book Visualization
-
-## Author
-
-B.Tech Electrical Engineering, IIT Kharagpur
+* Real-Time Visualization
+* Latency Benchmarking
+* Multi-Threaded Matching Engine
