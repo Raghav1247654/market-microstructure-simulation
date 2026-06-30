@@ -12,25 +12,6 @@
 
 using namespace std;
 
-/*
-    ============================================================
-    Order Matching Engine (v2)
-    ============================================================
-
-    Improvements over v1:
-    - Integer "tick" pricing instead of double (avoids float
-      rounding bugs that are a classic trading-system pitfall)
-    - Order cancellation (lazy deletion from priority queues)
-    - Order types: LIMIT, MARKET, IOC (Immediate-Or-Cancel)
-    - Matching logic returns Trade objects instead of printing
-      directly (separates business logic from I/O)
-    - Aggregated order book depth view (Level 2 style)
-    - Cleaner statistics and reporting
-*/
-
-// ----------------------------------------------------------
-// Enums / Types
-// ----------------------------------------------------------
 
 enum class OrderType
 {
