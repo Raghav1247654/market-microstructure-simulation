@@ -1,285 +1,525 @@
 #include <iostream>
+#include <iomanip>
 #include <queue>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <map>
 #include <random>
 #include <ctime>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
 /*
-    Represents a single order submitted to the exchange.
+    ============================================================
+    Order Matching Engine (v2)
+    ============================================================
 
-    id         : Unique order identifier
-    isBuy      : true = Buy Order, false = Sell Order
-    price      : Limit price of the order
-    quantity   : Number of shares/contracts
-    timestamp  : Arrival time used for time priority
+    Improvements over v1:
+    - Integer "tick" pricing instead of double (avoids float
+      rounding bugs that are a classic trading-system pitfall)
+    - Order cancellation (lazy deletion from priority queues)
+    - Order types: LIMIT, MARKET, IOC (Immediate-Or-Cancel)
+    - Matching logic returns Trade objects instead of printing
+      directly (separates business logic from I/O)
+    - Aggregated order book depth view (Level 2 style)
+    - Cleaner statistics and reporting
 */
+
+// ----------------------------------------------------------
+// Enums / Types
+// ----------------------------------------------------------
+
+enum class OrderType
+{
+    LIMIT,
+    MARKET,
+    IOC // Immediate-Or-Cancel: fill what's possible, discard rest
+};
+
+enum class OrderStatus
+{
+    OPEN,
+    PARTIALLY_FILLED,
+    FILLED,
+    CANCELLED
+};
+
+// Price is represented in integer "ticks" (e.g. cents) to avoid
+// floating point comparison/rounding issues common in real
+// trading systems.
+using Ticks = long long;
+
+// ----------------------------------------------------------
+// Order
+// ----------------------------------------------------------
+
 struct Order
 {
     int id;
     bool isBuy;
-    double price;
-    int quantity;
-    int timestamp;
+    OrderType type;
+    Ticks price;     // ignored for MARKET orders
+    int quantity;     // remaining quantity
+    int originalQty;
+    long long timestamp; // arrival sequence number, used for time priority
 };
 
-/*
-    Buy-side comparator.
+// ----------------------------------------------------------
+// Trade (execution report)
+// ----------------------------------------------------------
 
-    Priority Rules:
-    1. Higher price gets higher priority.
-    2. If prices are equal, earlier timestamp wins.
+struct Trade
+{
+    int buyOrderId;
+    int sellOrderId;
+    Ticks price;
+    int quantity;
+    long long sequence;
+};
 
-    This implements price-time priority.
-*/
+// ----------------------------------------------------------
+// Comparators for price-time priority
+// ----------------------------------------------------------
+
 struct BuyComparator
 {
     bool operator()(const Order &a, const Order &b) const
     {
         if (a.price != b.price)
-            return a.price < b.price;
-
-        return a.timestamp > b.timestamp;
+            return a.price < b.price; // higher price = higher priority
+        return a.timestamp > b.timestamp; // earlier time = higher priority
     }
 };
 
-/*
-    Sell-side comparator.
-
-    Priority Rules:
-    1. Lower price gets higher priority.
-    2. If prices are equal, earlier timestamp wins.
-
-    This mirrors the behavior of a real exchange.
-*/
 struct SellComparator
 {
     bool operator()(const Order &a, const Order &b) const
     {
         if (a.price != b.price)
-            return a.price > b.price;
-
+            return a.price > b.price; // lower price = higher priority
         return a.timestamp > b.timestamp;
     }
 };
 
-/*
-    Matching Engine
+// ----------------------------------------------------------
+// Matching Engine
+// ----------------------------------------------------------
 
-    Responsibilities:
-    - Maintain buy and sell order books
-    - Accept incoming orders
-    - Match compatible orders
-    - Track statistics
-*/
 class MatchingEngine
 {
 private:
+    priority_queue<Order, vector<Order>, BuyComparator> buyBook;
+    priority_queue<Order, vector<Order>, SellComparator> sellBook;
 
-    // Buy orders stored in a max-priority queue
-    priority_queue<
-        Order,
-        vector<Order>,
-        BuyComparator> buyBook;
+    // Tracks cancelled order IDs so we can lazily skip them
+    // when they surface at the top of a priority queue.
+    // (std::priority_queue has no O(log n) arbitrary removal,
+    // so lazy deletion is the standard technique.)
+    unordered_set<int> cancelledIds;
 
-    // Sell orders stored in a min-priority queue
-    priority_queue<
-        Order,
-        vector<Order>,
-        SellComparator> sellBook;
+    // Tracks live quantity & status per order id, for cancel
+    // validation and external status queries.
+    unordered_map<int, Order> liveOrders;
 
-    int tradesExecuted = 0;
+    long long sequenceCounter = 0;
     int ordersProcessed = 0;
+    int tradesExecuted = 0;
+    long long volumeTraded = 0;
+
+    // Removes cancelled orders sitting at the top of either book.
+    void purgeCancelled()
+    {
+        while (!buyBook.empty() && cancelledIds.count(buyBook.top().id))
+            buyBook.pop();
+
+        while (!sellBook.empty() && cancelledIds.count(sellBook.top().id))
+            sellBook.pop();
+    }
 
 public:
 
-    /*
-        Adds a new order to the exchange.
-
-        Orders are inserted into the appropriate
-        order book and matching is attempted immediately.
-    */
-    void addOrder(Order order)
+    // Submits an order and attempts to match it.
+    // Returns the list of trades generated by this submission.
+    vector<Trade> submitOrder(Order order)
     {
         ordersProcessed++;
+        order.timestamp = ++sequenceCounter;
+        order.originalQty = order.quantity;
 
-        if (order.isBuy)
-            buyBook.push(order);
+        vector<Trade> trades;
+
+        if (order.type == OrderType::MARKET || order.type == OrderType::IOC)
+        {
+            trades = matchAggressive(order);
+            // MARKET/IOC orders never rest in the book; any
+            // unfilled remainder is simply discarded.
+        }
         else
-            sellBook.push(order);
+        {
+            if (order.isBuy)
+                buyBook.push(order);
+            else
+                sellBook.push(order);
 
-        match();
+            liveOrders[order.id] = order;
+            trades = match();
+        }
+
+        return trades;
     }
 
-    /*
-        Core matching algorithm.
-
-        While:
-        Best Bid >= Best Ask
-
-        execute trades.
-
-        Supports:
-        - Price-Time Priority
-        - Partial Fills
-    */
-    void match()
+    // Attempts to cancel a resting order by id.
+    // Returns true if the order was found and cancelled.
+    bool cancelOrder(int id)
     {
-        while (!buyBook.empty() &&
-               !sellBook.empty() &&
-               buyBook.top().price >= sellBook.top().price)
+        auto it = liveOrders.find(id);
+        if (it == liveOrders.end())
+            return false;
+
+        cancelledIds.insert(id);
+        liveOrders.erase(it);
+        purgeCancelled();
+        return true;
+    }
+
+    // Standard resting-order matching loop (LIMIT orders only,
+    // since MARKET/IOC are handled separately and never rest).
+    vector<Trade> match()
+    {
+        vector<Trade> trades;
+        purgeCancelled();
+
+        while (!buyBook.empty() && !sellBook.empty())
         {
+            purgeCancelled();
+            if (buyBook.empty() || sellBook.empty())
+                break;
+
+            const Order &topBuy = buyBook.top();
+            const Order &topSell = sellBook.top();
+
+            if (topBuy.price < topSell.price)
+                break;
+
             Order buy = buyBook.top();
             buyBook.pop();
-
             Order sell = sellBook.top();
             sellBook.pop();
 
-            int tradedQty =
-                min(buy.quantity, sell.quantity);
+            int tradedQty = min(buy.quantity, sell.quantity);
+            // Execution price follows price-time priority convention:
+            // the resting order (earlier timestamp) sets the price.
+            Ticks tradePrice = (buy.timestamp < sell.timestamp) ? buy.price : sell.price;
 
-            cout << "\n================================";
-            cout << "\nTRADE EXECUTED";
-            cout << "\n================================\n";
+            trades.push_back({buy.id, sell.id, tradePrice, tradedQty, ++sequenceCounter});
 
-            cout << "Buy Order ID : "
-                 << buy.id
-                 << endl;
-
-            cout << "Sell Order ID: "
-                 << sell.id
-                 << endl;
-
-            cout << "Trade Price  : "
-                 << sell.price
-                 << endl;
-
-            cout << "Trade Qty    : "
-                 << tradedQty
-                 << endl;
-
-            // Reduce remaining quantities
             buy.quantity -= tradedQty;
             sell.quantity -= tradedQty;
-
             tradesExecuted++;
+            volumeTraded += tradedQty;
 
-            /*
-                If an order is only partially filled,
-                reinsert the remaining quantity back
-                into the order book.
-            */
             if (buy.quantity > 0)
+            {
                 buyBook.push(buy);
+                liveOrders[buy.id] = buy;
+            }
+            else
+            {
+                liveOrders.erase(buy.id);
+            }
 
             if (sell.quantity > 0)
+            {
                 sellBook.push(sell);
+                liveOrders[sell.id] = sell;
+            }
+            else
+            {
+                liveOrders.erase(sell.id);
+            }
         }
+
+        return trades;
     }
 
-    /*
-        Displays current market information.
-
-        Best Bid = Highest Buy Price
-        Best Ask = Lowest Sell Price
-        Spread   = Ask - Bid
-    */
-    void printMarketData()
+    // Handles MARKET and IOC orders, which match immediately
+    // against the resting book and never rest themselves.
+    // Templated helper so it works against either priority_queue
+    // type (buyBook and sellBook have different comparator types,
+    // so they can't share a single reference variable).
+    template <typename BookType>
+    vector<Trade> matchAggressiveAgainst(Order order, BookType &book)
     {
-        cout << "\n================================";
-        cout << "\nMARKET DATA";
-        cout << "\n================================\n";
+        vector<Trade> trades;
 
-        if (!buyBook.empty())
+        while (order.quantity > 0 && !book.empty())
         {
-            cout << "Best Bid: "
-                 << buyBook.top().price
-                 << endl;
+            while (!book.empty() && cancelledIds.count(book.top().id))
+                book.pop();
+            if (book.empty())
+                break;
+
+            const Order &resting = book.top();
+
+            // For IOC limit-priced orders, respect the limit price.
+            if (order.type == OrderType::IOC)
+            {
+                if (order.isBuy && resting.price > order.price)
+                    break;
+                if (!order.isBuy && resting.price < order.price)
+                    break;
+            }
+            // MARKET orders take whatever price is available.
+
+            Order rest = book.top();
+            book.pop();
+
+            int tradedQty = min(order.quantity, rest.quantity);
+            Ticks tradePrice = rest.price; // resting order sets the price
+
+            int buyId = order.isBuy ? order.id : rest.id;
+            int sellId = order.isBuy ? rest.id : order.id;
+
+            trades.push_back({buyId, sellId, tradePrice, tradedQty, ++sequenceCounter});
+
+            order.quantity -= tradedQty;
+            rest.quantity -= tradedQty;
+            tradesExecuted++;
+            volumeTraded += tradedQty;
+
+            if (rest.quantity > 0)
+            {
+                book.push(rest);
+                liveOrders[rest.id] = rest;
+            }
+            else
+            {
+                liveOrders.erase(rest.id);
+            }
         }
 
-        if (!sellBook.empty())
-        {
-            cout << "Best Ask: "
-                 << sellBook.top().price
-                 << endl;
-        }
-
-        if (!buyBook.empty() &&
-            !sellBook.empty())
-        {
-            cout << "Spread: "
-                 << sellBook.top().price -
-                        buyBook.top().price
-                 << endl;
-        }
+        return trades;
     }
 
-    /*
-        Displays simulation statistics.
-    */
-    void printStatistics()
+    vector<Trade> matchAggressive(Order order)
     {
-        cout << "\n================================";
-        cout << "\nSTATISTICS";
-        cout << "\n================================\n";
-
-        cout << "Orders Processed: "
-             << ordersProcessed
-             << endl;
-
-        cout << "Trades Executed : "
-             << tradesExecuted
-             << endl;
-
-        cout << "Open Buy Orders : "
-             << buyBook.size()
-             << endl;
-
-        cout << "Open Sell Orders: "
-             << sellBook.size()
-             << endl;
+        purgeCancelled();
+        if (order.isBuy)
+            return matchAggressiveAgainst(order, sellBook);
+        else
+            return matchAggressiveAgainst(order, buyBook);
     }
+
+    // ----------------------------------------------------------
+    // Reporting / market data
+    // ----------------------------------------------------------
+
+    bool hasBestBid()
+    {
+        purgeCancelled();
+        return !buyBook.empty();
+    }
+
+    bool hasBestAsk()
+    {
+        purgeCancelled();
+        return !sellBook.empty();
+    }
+
+    Ticks bestBid()
+    {
+        purgeCancelled();
+        return buyBook.top().price;
+    }
+
+    Ticks bestAsk()
+    {
+        purgeCancelled();
+        return sellBook.top().price;
+    }
+
+    // Aggregated depth (price -> total quantity) for each side.
+    // Copies the heap contents, so it's O(n log n); fine for
+    // reporting, not for the hot path.
+    map<Ticks, int, greater<Ticks>> buyDepth()
+    {
+        map<Ticks, int, greater<Ticks>> depth;
+        auto copy = buyBook;
+        while (!copy.empty())
+        {
+            Order o = copy.top();
+            copy.pop();
+            if (!cancelledIds.count(o.id))
+                depth[o.price] += o.quantity;
+        }
+        return depth;
+    }
+
+    map<Ticks, int> sellDepth()
+    {
+        map<Ticks, int> depth;
+        auto copy = sellBook;
+        while (!copy.empty())
+        {
+            Order o = copy.top();
+            copy.pop();
+            if (!cancelledIds.count(o.id))
+                depth[o.price] += o.quantity;
+        }
+        return depth;
+    }
+
+    int getOrdersProcessed() const { return ordersProcessed; }
+    int getTradesExecuted() const { return tradesExecuted; }
+    long long getVolumeTraded() const { return volumeTraded; }
+    size_t getOpenBuyCount() { purgeCancelled(); return buyBook.size(); }
+    size_t getOpenSellCount() { purgeCancelled(); return sellBook.size(); }
 };
+
+// ----------------------------------------------------------
+// Display helpers (kept separate from MatchingEngine so the
+// engine itself has no I/O dependency)
+// ----------------------------------------------------------
+
+string formatPrice(Ticks ticks)
+{
+    // Display ticks (cents) as a dollar-formatted string.
+    ostringstream out;
+    out << fixed << setprecision(2) << (ticks / 100.0);
+    return out.str();
+}
+
+void printTrade(const Trade &t)
+{
+    cout << "TRADE  buy#" << t.buyOrderId
+         << " x sell#" << t.sellOrderId
+         << "  price=" << formatPrice(t.price)
+         << "  qty=" << t.quantity << "\n";
+}
+
+void printMarketData(MatchingEngine &engine)
+{
+    cout << "\n================================";
+    cout << "\nMARKET DATA";
+    cout << "\n================================\n";
+
+    if (engine.hasBestBid())
+        cout << "Best Bid: " << formatPrice(engine.bestBid()) << "\n";
+    if (engine.hasBestAsk())
+        cout << "Best Ask: " << formatPrice(engine.bestAsk()) << "\n";
+    if (engine.hasBestBid() && engine.hasBestAsk())
+        cout << "Spread  : " << formatPrice(engine.bestAsk() - engine.bestBid()) << "\n";
+}
+
+void printDepth(MatchingEngine &engine, int levels = 5)
+{
+    cout << "\n================================";
+    cout << "\nORDER BOOK DEPTH (top " << levels << " levels)";
+    cout << "\n================================\n";
+
+    auto bids = engine.buyDepth();
+    auto asks = engine.sellDepth();
+
+    cout << left << setw(15) << "BID QTY" << setw(10) << "PRICE"
+         << "  |  " << setw(10) << "PRICE" << "ASK QTY\n";
+
+    auto bidIt = bids.begin();
+    auto askIt = asks.begin();
+
+    for (int i = 0; i < levels; i++)
+    {
+        if (bidIt != bids.end())
+        {
+            cout << left << setw(15) << bidIt->second << setw(10) << formatPrice(bidIt->first);
+            ++bidIt;
+        }
+        else
+        {
+            cout << setw(25) << "";
+        }
+
+        cout << "  |  ";
+
+        if (askIt != asks.end())
+        {
+            cout << setw(10) << formatPrice(askIt->first) << askIt->second;
+            ++askIt;
+        }
+
+        cout << "\n";
+    }
+}
+
+void printStatistics(MatchingEngine &engine)
+{
+    cout << "\n================================";
+    cout << "\nSTATISTICS";
+    cout << "\n================================\n";
+
+    cout << "Orders Processed: " << engine.getOrdersProcessed() << "\n";
+    cout << "Trades Executed : " << engine.getTradesExecuted() << "\n";
+    cout << "Volume Traded   : " << engine.getVolumeTraded() << "\n";
+    cout << "Open Buy Orders : " << engine.getOpenBuyCount() << "\n";
+    cout << "Open Sell Orders: " << engine.getOpenSellCount() << "\n";
+}
+
+// ----------------------------------------------------------
+// Simulation driver
+// ----------------------------------------------------------
 
 int main()
 {
     MatchingEngine engine;
 
-    /*
-        Random order generation.
-
-        This simulates multiple market participants
-        submitting orders to the exchange.
-    */
-    mt19937 rng(time(0));
-
+    mt19937 rng(static_cast<unsigned int>(time(0)));
     uniform_int_distribution<int> sideDist(0, 1);
-    uniform_int_distribution<int> priceDist(95, 105);
+    uniform_int_distribution<int> priceDist(9500, 10500); // ticks = cents
     uniform_int_distribution<int> qtyDist(10, 100);
+    uniform_int_distribution<int> typeDist(0, 9); // weight LIMIT heaviest
+    uniform_int_distribution<int> cancelChance(0, 9);
 
-    int timestamp = 1;
-
-    /*
-        Generate 100 random orders.
-    */
     const int NUM_ORDERS = 100;
-    
+    vector<int> restingIds; // ids we might cancel later
+
     for (int i = 1; i <= NUM_ORDERS; i++)
     {
         Order order;
-
         order.id = i;
         order.isBuy = sideDist(rng);
         order.price = priceDist(rng);
         order.quantity = qtyDist(rng);
-        order.timestamp = timestamp++;
 
-        engine.addOrder(order);
+        int t = typeDist(rng);
+        if (t == 0)
+            order.type = OrderType::MARKET; // 10% market orders
+        else if (t == 1)
+            order.type = OrderType::IOC;    // 10% IOC orders
+        else
+            order.type = OrderType::LIMIT;  // 80% limit orders
+
+        vector<Trade> trades = engine.submitOrder(order);
+        for (const auto &tr : trades)
+            printTrade(tr);
+
+        if (order.type == OrderType::LIMIT)
+            restingIds.push_back(order.id);
+
+        // Randomly cancel a previously resting order to
+        // demonstrate cancellation handling.
+        if (!restingIds.empty() && cancelChance(rng) == 0)
+        {
+            int victim = restingIds.back();
+            restingIds.pop_back();
+            engine.cancelOrder(victim);
+        }
     }
 
-    engine.printMarketData();
-    engine.printStatistics();
+    printMarketData(engine);
+    printDepth(engine);
+    printStatistics(engine);
 
     return 0;
 }
