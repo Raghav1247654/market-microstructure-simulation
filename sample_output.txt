@@ -1,638 +1,91 @@
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 3
-Sell Order ID: 1
-Trade Price  : 96
-Trade Qty    : 22
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 5
-Sell Order ID: 12
-Trade Price  : 95
-Trade Qty    : 86
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 13
-Sell Order ID: 1
-Trade Price  : 96
-Trade Qty    : 75
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 13
-Sell Order ID: 4
-Trade Price  : 96
-Trade Qty    : 13
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 15
-Sell Order ID: 4
-Trade Price  : 96
-Trade Qty    : 40
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 15
-Sell Order ID: 2
-Trade Price  : 98
-Trade Qty    : 43
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 5
-Sell Order ID: 19
-Trade Price  : 95
-Trade Qty    : 4
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 20
-Sell Order ID: 19
-Trade Price  : 95
-Trade Qty    : 11
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 20
-Sell Order ID: 18
-Trade Price  : 96
-Trade Qty    : 11
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 21
-Sell Order ID: 18
-Trade Price  : 96
-Trade Qty    : 36
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 22
-Sell Order ID: 18
-Trade Price  : 96
-Trade Qty    : 14
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 22
-Sell Order ID: 2
-Trade Price  : 98
-Trade Qty    : 19
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 22
-Sell Order ID: 16
-Trade Price  : 98
-Trade Qty    : 11
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 24
-Sell Order ID: 16
-Trade Price  : 98
-Trade Qty    : 34
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 24
-Sell Order ID: 11
-Trade Price  : 99
-Trade Qty    : 39
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 25
-Sell Order ID: 11
-Trade Price  : 99
-Trade Qty    : 27
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 25
-Sell Order ID: 6
-Trade Price  : 100
-Trade Qty    : 7
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 29
-Sell Order ID: 26
-Trade Price  : 98
-Trade Qty    : 63
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 29
-Sell Order ID: 6
-Trade Price  : 100
-Trade Qty    : 15
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 30
-Sell Order ID: 6
-Trade Price  : 100
-Trade Qty    : 1
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 30
-Sell Order ID: 27
-Trade Price  : 100
-Trade Qty    : 47
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 30
-Sell Order ID: 9
-Trade Price  : 101
-Trade Qty    : 7
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 34
-Sell Order ID: 9
-Trade Price  : 101
-Trade Qty    : 82
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 34
-Sell Order ID: 32
-Trade Price  : 101
-Trade Qty    : 15
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 35
-Sell Order ID: 32
-Trade Price  : 101
-Trade Qty    : 29
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 35
-Sell Order ID: 38
-Trade Price  : 97
-Trade Qty    : 62
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 39
-Sell Order ID: 7
-Trade Price  : 102
-Trade Qty    : 77
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 39
-Sell Order ID: 10
-Trade Price  : 102
-Trade Qty    : 8
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 35
-Sell Order ID: 40
-Trade Price  : 100
-Trade Qty    : 2
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 31
-Sell Order ID: 42
-Trade Price  : 97
-Trade Qty    : 14
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 36
-Sell Order ID: 42
-Trade Price  : 97
-Trade Qty    : 47
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 33
-Sell Order ID: 42
-Trade Price  : 97
-Trade Qty    : 39
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 43
-Sell Order ID: 40
-Trade Price  : 100
-Trade Qty    : 20
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 43
-Sell Order ID: 10
-Trade Price  : 102
-Trade Qty    : 31
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 43
-Sell Order ID: 17
-Trade Price  : 102
-Trade Qty    : 24
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 43
-Sell Order ID: 28
-Trade Price  : 102
-Trade Qty    : 22
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 48
-Sell Order ID: 28
-Trade Price  : 102
-Trade Qty    : 19
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 46
-Sell Order ID: 50
-Trade Price  : 96
-Trade Qty    : 15
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 49
-Sell Order ID: 50
-Trade Price  : 96
-Trade Qty    : 40
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 49
-Sell Order ID: 52
-Trade Price  : 96
-Trade Qty    : 46
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 44
-Sell Order ID: 52
-Trade Price  : 96
-Trade Qty    : 14
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 47
-Sell Order ID: 52
-Trade Price  : 96
-Trade Qty    : 20
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 58
-Sell Order ID: 53
-Trade Price  : 101
-Trade Qty    : 10
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 58
-Sell Order ID: 59
-Trade Price  : 95
-Trade Qty    : 45
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 47
-Sell Order ID: 59
-Trade Price  : 95
-Trade Qty    : 4
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 47
-Sell Order ID: 67
-Trade Price  : 98
-Trade Qty    : 50
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 56
-Sell Order ID: 67
-Trade Price  : 98
-Trade Qty    : 5
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 68
-Sell Order ID: 66
-Trade Price  : 100
-Trade Qty    : 85
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 68
-Sell Order ID: 69
-Trade Price  : 95
-Trade Qty    : 10
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 56
-Sell Order ID: 69
-Trade Price  : 95
-Trade Qty    : 37
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 61
-Sell Order ID: 69
-Trade Price  : 95
-Trade Qty    : 41
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 75
-Sell Order ID: 28
-Trade Price  : 102
-Trade Qty    : 25
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 75
-Sell Order ID: 41
-Trade Price  : 102
-Trade Qty    : 54
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 75
-Sell Order ID: 8
-Trade Price  : 104
-Trade Qty    : 12
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 70
-Sell Order ID: 76
-Trade Price  : 96
-Trade Qty    : 39
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 73
-Sell Order ID: 76
-Trade Price  : 96
-Trade Qty    : 35
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 61
-Sell Order ID: 76
-Trade Price  : 96
-Trade Qty    : 7
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 71
-Sell Order ID: 77
-Trade Price  : 95
-Trade Qty    : 60
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 33
-Sell Order ID: 77
-Trade Price  : 95
-Trade Qty    : 6
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 54
-Sell Order ID: 77
-Trade Price  : 95
-Trade Qty    : 13
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 54
-Sell Order ID: 78
-Trade Price  : 97
-Trade Qty    : 55
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 81
-Sell Order ID: 82
-Trade Price  : 96
-Trade Qty    : 53
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 81
-Sell Order ID: 83
-Trade Price  : 102
-Trade Qty    : 22
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 54
-Sell Order ID: 85
-Trade Price  : 96
-Trade Qty    : 7
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 72
-Sell Order ID: 85
-Trade Price  : 96
-Trade Qty    : 50
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 84
-Sell Order ID: 85
-Trade Price  : 96
-Trade Qty    : 30
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 23
-Sell Order ID: 85
-Trade Price  : 96
-Trade Qty    : 11
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 86
-Sell Order ID: 93
-Trade Price  : 98
-Trade Qty    : 13
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 94
-Sell Order ID: 96
-Trade Price  : 96
-Trade Qty    : 17
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 86
-Sell Order ID: 96
-Trade Price  : 96
-Trade Qty    : 27
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 91
-Sell Order ID: 96
-Trade Price  : 96
-Trade Qty    : 29
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 91
-Sell Order ID: 97
-Trade Price  : 97
-Trade Qty    : 27
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 91
-Sell Order ID: 98
-Trade Price  : 97
-Trade Qty    : 29
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 87
-Sell Order ID: 98
-Trade Price  : 97
-Trade Qty    : 36
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 99
-Sell Order ID: 83
-Trade Price  : 102
-Trade Qty    : 10
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 87
-Sell Order ID: 100
-Trade Price  : 95
-Trade Qty    : 22
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 89
-Sell Order ID: 100
-Trade Price  : 95
-Trade Qty    : 60
-
-================================
-TRADE EXECUTED
-================================
-Buy Order ID : 23
-Sell Order ID: 100
-Trade Price  : 95
-Trade Qty    : 9
+TRADE  buy#7 x sell#5  price=96.76  qty=58
+TRADE  buy#11 x sell#10  price=96.24  qty=48
+TRADE  buy#11 x sell#5  price=96.76  qty=1
+TRADE  buy#14 x sell#2  price=99.89  qty=14
+TRADE  buy#15 x sell#2  price=99.89  qty=81
+TRADE  buy#15 x sell#18  price=100.36  qty=7
+TRADE  buy#20 x sell#21  price=97.66  qty=64
+TRADE  buy#11 x sell#21  price=97.46  qty=21
+TRADE  buy#13 x sell#21  price=97.19  qty=3
+TRADE  buy#24 x sell#22  price=100.33  qty=63
+TRADE  buy#26 x sell#22  price=100.33  qty=35
+TRADE  buy#26 x sell#1  price=102.05  qty=53
+TRADE  buy#30 x sell#1  price=102.05  qty=47
+TRADE  buy#30 x sell#6  price=102.53  qty=35
+TRADE  buy#23 x sell#31  price=99.45  qty=59
+TRADE  buy#25 x sell#31  price=97.23  qty=9
+TRADE  buy#33 x sell#32  price=97.43  qty=19
+TRADE  buy#34 x sell#32  price=97.43  qty=11
+TRADE  buy#34 x sell#6  price=102.53  qty=1
+TRADE  buy#34 x sell#16  price=102.71  qty=41
+TRADE  buy#36 x sell#16  price=102.71  qty=27
+TRADE  buy#35 x sell#41  price=101.34  qty=35
+TRADE  buy#40 x sell#41  price=100.15  qty=31
+TRADE  buy#42 x sell#38  price=101.49  qty=65
+TRADE  buy#45 x sell#43  price=100.91  qty=72
+TRADE  buy#46 x sell#38  price=101.49  qty=13
+TRADE  buy#46 x sell#16  price=102.71  qty=24
+TRADE  buy#46 x sell#27  price=103.84  qty=25
+TRADE  buy#45 x sell#47  price=101.43  qty=12
+TRADE  buy#40 x sell#47  price=100.15  qty=21
+TRADE  buy#40 x sell#48  price=100.15  qty=16
+TRADE  buy#25 x sell#49  price=97.23  qty=72
+TRADE  buy#54 x sell#55  price=98.42  qty=35
+TRADE  buy#53 x sell#55  price=97.33  qty=8
+TRADE  buy#56 x sell#51  price=99.09  qty=77
+TRADE  buy#56 x sell#48  price=100.02  qty=3
+TRADE  buy#58 x sell#48  price=100.02  qty=16
+TRADE  buy#62 x sell#48  price=100.02  qty=21
+TRADE  buy#61 x sell#63  price=98.78  qty=45
+TRADE  buy#53 x sell#66  price=97.33  qty=22
+TRADE  buy#53 x sell#67  price=97.33  qty=36
+TRADE  buy#69 x sell#67  price=97.23  qty=36
+TRADE  buy#69 x sell#65  price=98.41  qty=28
+TRADE  buy#69 x sell#63  price=98.70  qty=28
+TRADE  buy#71 x sell#63  price=98.70  qty=3
+TRADE  buy#71 x sell#48  price=100.02  qty=15
+TRADE  buy#71 x sell#52  price=102.36  qty=67
+TRADE  buy#72 x sell#74  price=102.35  qty=17
+TRADE  buy#76 x sell#74  price=98.60  qty=71
+TRADE  buy#77 x sell#74  price=98.60  qty=1
+TRADE  buy#77 x sell#78  price=101.54  qty=19
+TRADE  buy#77 x sell#80  price=101.54  qty=21
+TRADE  buy#81 x sell#87  price=102.00  qty=69
+TRADE  buy#81 x sell#88  price=102.00  qty=13
+TRADE  buy#77 x sell#88  price=101.54  qty=39
+TRADE  buy#79 x sell#89  price=98.95  qty=17
+TRADE  buy#13 x sell#89  price=97.19  qty=72
+TRADE  buy#90 x sell#91  price=99.01  qty=15
+TRADE  buy#92 x sell#88  price=100.64  qty=27
+TRADE  buy#94 x sell#93  price=100.50  qty=11
+TRADE  buy#96 x sell#95  price=97.43  qty=69
+TRADE  buy#44 x sell#97  price=97.17  qty=19
+TRADE  buy#44 x sell#99  price=97.17  qty=62
+TRADE  buy#44 x sell#100  price=97.17  qty=13
+TRADE  buy#12 x sell#100  price=96.97  qty=38
 
 ================================
 MARKET DATA
 ================================
-Best Bid: 96
-Best Ask: 102
-Spread: 6
+Best Bid: 96.97
+Best Ask: 97.43
+Spread  : 0.46
+
+================================
+ORDER BOOK DEPTH (top 5 levels)
+================================
+BID QTY        PRICE       |  PRICE     ASK QTY
+1              96.97       |  97.43     5
+95             96.89       |  100.50    6
+39             96.33       |  100.64    21
+99             95.92       |  101.15    21
+59             95.77       |  102.36    10
 
 ================================
 STATISTICS
 ================================
 Orders Processed: 100
-Trades Executed : 78
-Open Buy Orders : 9
+Trades Executed : 65
+Volume Traded   : 2116
+Open Buy Orders : 8
 Open Sell Orders: 12
